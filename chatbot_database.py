@@ -6,7 +6,7 @@ import urllib.request #for downloading file
 import bz2 #for extracting zipfile
 
 database = 'reddit_comments'
-timeframe = '2005-12'
+timeframe = '2017-11'
 sql_transaction = []
 
 connection = sqlite3.connect('{}.db'.format(database))
