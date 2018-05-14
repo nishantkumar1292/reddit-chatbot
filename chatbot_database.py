@@ -1,22 +1,27 @@
-import sqlite3
 import json
 from datetime import datetime
 import os
 import urllib.request #for downloading file
 import bz2 #for extracting zipfile
 
-database = 'reddit_comments'
+import mysql.connector
+
+
+#file imports
+import app_constants as AppConstants
+
+connection = mysql.connector.connect(**AppConstants.config)
+
 timeframe = '2017-11'
 sql_transaction = []
 
-connection = sqlite3.connect('{}.db'.format(database))
+# connection = sqlite3.connect('{}.db'.format(AppConstants.database))
 c = connection.cursor()
 
-year, month = timeframe.split("-")
-table_name = "parent_reply_{}_{}".format(year, month)
+table_name = "parent_reply"
 
 def create_table():
-	c.execute("CREATE TABLE IF NOT EXISTS {} (parent_id TEXT PRIMARY_KEY, comment_id TEXT UNIQUE, parent TEXT, comment TEXT, subreddit TEXT, unix INT, score INT)".format(table_name))
+	c.execute("CREATE TABLE IF NOT EXISTS {} (parent_id TEXT PRIMARY_KEY, comment_id TEXT UNIQUE, parent TEXT, comment TEXT, subreddit TEXT, unix INT, score INT, timeframe TEXT)".format(table_name))
 
 def get_file(path):
 	if os.path.exists(path):
@@ -126,16 +131,16 @@ def sql_insert_replace_comment(comment_id, parent_id, parent_data, comment, subr
 	except Exception as e:
 		print('replace_comment', str(e))
 
-def sql_insert_has_parent(comment_id, parent_id, parent_data, comment, subreddit, time, score):
+def sql_insert_has_parent(comment_id, parent_id, parent_data, comment, subreddit, time, score, timeframe):
 	try:
-		query = """INSERT INTO {} (parent_id, comment_id, parent, comment, subreddit, unix, score) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {});""".format(table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id)
+		query = """INSERT INTO {} (parent_id, comment_id, parent, comment, subreddit, unix, score, timeframe) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {});""".format(table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id, timeframe)
 		transaction_bldr(query)
 	except Exception as e:
 		print('insert_comment_has_parent', str(e))
 
-def sql_insert_no_parent(comment_id, parent_id, comment, subreddit, time, score):
+def sql_insert_no_parent(comment_id, parent_id, comment, subreddit, time, score, timeframe):
 	try:
-		query = """INSERT INTO {} (parent_id, comment_id, comment, subreddit, unix, score) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {});""".format(table_name, parent_id, comment_id, comment, subreddit, int(time), score, parent_id)
+		query = """INSERT INTO {} (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {});""".format(table_name, parent_id, comment_id, comment, subreddit, int(time), score, parent_id, timeframe)
 		transaction_bldr(query)
 	except Exception as e:
 		print('insert_comment_no_parent', str(e))
@@ -150,12 +155,13 @@ if __name__ == '__main__':
 		for row in f:
 			row_counter += 1
 			row = json.loads(row)
-			parent_id = row['parent_id']
+			parent_id = row['parent_id'].split("_")[1]
 			body = format_data(row['body'])
 			created_utc = row['created_utc']
 			score = row['score']
 			subreddit = row['subreddit']
-			comment_id = row['name']
+			comment_id = row['id']
+			timeframe = timeframe
 			parent_data = find_parent(parent_id)
 
 			if score >= 2:
@@ -166,10 +172,12 @@ if __name__ == '__main__':
 							sql_insert_replace_comment(comment_id, parent_id, parent_data, body, subreddit, created_utc, score)
 					else:
 						if parent_data:
-							sql_insert_has_parent(comment_id, parent_id, parent_data, body, subreddit, created_utc, score)
+							sql_insert_has_parent(comment_id, parent_id, parent_data, body, subreddit, created_utc, score, timeframe)
 							piared_rows += 1
 						else:
-							sql_insert_no_parent(comment_id, parent_id, body, subreddit, created_utc, score)
+							sql_insert_no_parent(comment_id, parent_id, body, subreddit, created_utc, score, timeframe)
 
 			if row_counter % 1000 == 0:
 				print("Total rows read: {}, Paired Rows: {}, Time: {}".format(row_counter, piared_rows, str(datetime.now())))
+	c.close()
+	connection.close()
