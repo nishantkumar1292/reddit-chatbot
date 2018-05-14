@@ -21,7 +21,7 @@ c = connection.cursor()
 table_name = "parent_reply"
 
 def create_table():
-	c.execute("CREATE TABLE IF NOT EXISTS {} (parent_id TEXT PRIMARY_KEY, comment_id TEXT UNIQUE, parent TEXT, comment TEXT, subreddit TEXT, unix INT, score INT, timeframe TEXT)".format(table_name))
+	c.execute("CREATE TABLE IF NOT EXISTS {} (parent_id VARCHAR(200) PRIMARY KEY, comment_id VARCHAR(200) UNIQUE, parent TEXT, comment TEXT, subreddit TEXT, unix INT, score INT, timeframe TEXT)".format(table_name))
 
 def get_file(path):
 	if os.path.exists(path):
