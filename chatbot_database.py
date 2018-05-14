@@ -10,7 +10,7 @@ import mysql.connector
 #file imports
 import app_constants as AppConstants
 
-connection = mysql.connector.connect(**AppConstants.config)
+connection = mysql.connector.connect(**AppConstants.db_config)
 
 timeframe = '2017-11'
 sql_transaction = []
