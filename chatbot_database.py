@@ -23,7 +23,7 @@ def get_timeframe():
 	return timeframe
 
 timeframe = get_timeframe()
-sql_transaction = []
+sql_transaction = 0
 
 # connection = sqlite3.connect('{}.db'.format(AppConstants.database))
 c = connection.cursor(buffered=True)
@@ -129,34 +129,32 @@ def acceptable(data):
 
 def transaction_bldr(sql):
 	global sql_transaction
-	sql_transaction.append(sql)
-	if len(sql_transaction) > 1000:
-		for s in sql_transaction:
-			try:
-				c.execute(s)
-			except Exception as e:
-				print("insert_in_db", str(e))
+	sql_transaction++
+	if sql_transaction > 1000:
 		connection.commit()
-		sql_transaction = []
+		sql_transaction = 0
 
 def sql_insert_replace_comment(comment_id, parent_id, parent_data, comment, subreddit, time, score):
 	try:
-		query = """UPDATE {} SET parent_id = '{}', comment_id = '{}', parent = '{}', comment = '{}', subreddit = '{}', unix = {}, score = {} WHERE parent_id = '{}';""".format(table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id)
-		c.execute(query)
+		query = ("""UPDATE %s SET parent_id = %s, comment_id = %s, parent = %s, comment = %s, subreddit = %s, unix = %s, score = %s WHERE parent_id = %s""")
+		params = (table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id)
+		c.execute(query, params)
 	except Exception as e:
 		print('replace_comment', str(e))
 
 def sql_insert_has_parent(comment_id, parent_id, parent_data, comment, subreddit, time, score, timeframe):
 	try:
-		query = """INSERT INTO {} (parent_id, comment_id, parent, comment, subreddit, unix, score, timeframe) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {}, {});""".format(table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id, timeframe)
-		c.execute(query)
+		query = ("""INSERT INTO %s (parent_id, comment_id, parent, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
+		params = (table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id, timeframe)
+		c.execute(query, params)
 	except Exception as e:
 		print('insert_comment_has_parent', str(e))
 
 def sql_insert_no_parent(comment_id, parent_id, comment, subreddit, time, score, timeframe):
 	try:
-		query = """INSERT INTO {} (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {}, {});""".format(table_name, parent_id, comment_id, comment, subreddit, int(time), score, parent_id, timeframe)
-		c.execute(query)
+		query = ("""INSERT INTO %s (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
+		params = (table_name, parent_id, comment_id, comment, subreddit, int(time), score, parent_id, timeframe)
+		c.execute(query, params)
 	except Exception as e:
 		print('insert_comment_no_parent', str(e))
 
