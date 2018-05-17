@@ -129,7 +129,7 @@ def acceptable(data):
 
 def transaction_bldr(sql):
 	global sql_transaction
-	sql_transaction++
+	sql_transaction += 1
 	if sql_transaction > 1000:
 		connection.commit()
 		sql_transaction = 0
