@@ -30,7 +30,13 @@ c = connection.cursor()
 table_name = "parent_reply"
 
 def create_table():
-	c.execute("CREATE TABLE IF NOT EXISTS {} (parent_id VARCHAR(200) PRIMARY KEY, comment_id VARCHAR(200) UNIQUE, parent TEXT, comment TEXT, subreddit TEXT, unix INT, score INT, timeframe TEXT)".format(table_name))
+	try:
+		c.execute("CREATE TABLE IF NOT EXISTS {} (parent_id VARCHAR(200) PRIMARY KEY, comment_id VARCHAR(200) UNIQUE, parent TEXT, comment TEXT, subreddit TEXT, unix INT, score INT, timeframe TEXT)".format(table_name))
+	except mysql.connector.Error as err:
+		if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
+			print("WARN: Table already exists")
+		else:
+			print(err.msg)
 
 def get_file(path):
 	if os.path.exists(path):
