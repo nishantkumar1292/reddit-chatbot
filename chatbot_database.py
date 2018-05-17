@@ -13,14 +13,6 @@ import app_constants as AppConstants
 
 connection = mysql.connector.connect(**AppConstants.db_config)
 
-timeframe = get_timeframe()
-sql_transaction = []
-
-# connection = sqlite3.connect('{}.db'.format(AppConstants.database))
-c = connection.cursor()
-
-table_name = "parent_reply"
-
 def get_timeframe():
 	if len(sys.argv) != 2:
 		print("Usage: python3 chatbot_database.py 2017-11")
@@ -29,6 +21,13 @@ def get_timeframe():
 		timeframe = sys.argv[1]
 	return timeframe
 
+timeframe = get_timeframe()
+sql_transaction = []
+
+# connection = sqlite3.connect('{}.db'.format(AppConstants.database))
+c = connection.cursor()
+
+table_name = "parent_reply"
 
 def create_table():
 	c.execute("CREATE TABLE IF NOT EXISTS {} (parent_id VARCHAR(200) PRIMARY KEY, comment_id VARCHAR(200) UNIQUE, parent TEXT, comment TEXT, subreddit TEXT, unix INT, score INT, timeframe TEXT)".format(table_name))
