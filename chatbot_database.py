@@ -131,7 +131,6 @@ def transaction_bldr(sql):
 	global sql_transaction
 	sql_transaction.append(sql)
 	if len(sql_transaction) > 1000:
-		c.execute('BEGIN TRANSACTION')
 		for s in sql_transaction:
 			try:
 				c.execute(s)
@@ -143,21 +142,21 @@ def transaction_bldr(sql):
 def sql_insert_replace_comment(comment_id, parent_id, parent_data, comment, subreddit, time, score):
 	try:
 		query = """UPDATE {} SET parent_id = '{}', comment_id = '{}', parent = '{}', comment = '{}', subreddit = '{}', unix = {}, score = {} WHERE parent_id = '{}';""".format(table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id)
-		transaction_bldr(query)
+		c.execute(query)
 	except Exception as e:
 		print('replace_comment', str(e))
 
 def sql_insert_has_parent(comment_id, parent_id, parent_data, comment, subreddit, time, score, timeframe):
 	try:
 		query = """INSERT INTO {} (parent_id, comment_id, parent, comment, subreddit, unix, score, timeframe) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {}, {});""".format(table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id, timeframe)
-		transaction_bldr(query)
+		c.execute(query)
 	except Exception as e:
 		print('insert_comment_has_parent', str(e))
 
 def sql_insert_no_parent(comment_id, parent_id, comment, subreddit, time, score, timeframe):
 	try:
 		query = """INSERT INTO {} (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {}, {});""".format(table_name, parent_id, comment_id, comment, subreddit, int(time), score, parent_id, timeframe)
-		transaction_bldr(query)
+		c.execute(query)
 	except Exception as e:
 		print('insert_comment_no_parent', str(e))
 
