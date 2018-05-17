@@ -136,24 +136,24 @@ def transaction_bldr(sql):
 
 def sql_insert_replace_comment(comment_id, parent_id, parent_data, comment, subreddit, time, score):
 	try:
-		query = ("""UPDATE %s SET parent_id = %s, comment_id = %s, parent = %s, comment = %s, subreddit = %s, unix = %s, score = %s WHERE parent_id = %s""")
-		params = (table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id)
+		query = ("""UPDATE parent_reply SET parent_id = %s, comment_id = %s, parent = %s, comment = %s, subreddit = %s, unix = %s, score = %s WHERE parent_id = %s""")
+		params = (parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id)
 		c.execute(query, params)
 	except Exception as e:
 		print('replace_comment', str(e))
 
 def sql_insert_has_parent(comment_id, parent_id, parent_data, comment, subreddit, time, score, timeframe):
 	try:
-		query = ("""INSERT INTO %s (parent_id, comment_id, parent, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
-		params = (table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id, timeframe)
+		query = ("""INSERT INTO parent_reply (parent_id, comment_id, parent, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
+		params = (parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id, timeframe)
 		c.execute(query, params)
 	except Exception as e:
 		print('insert_comment_has_parent', str(e))
 
 def sql_insert_no_parent(comment_id, parent_id, comment, subreddit, time, score, timeframe):
 	try:
-		query = ("""INSERT INTO %s (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
-		params = (table_name, parent_id, comment_id, comment, subreddit, int(time), score, parent_id, timeframe)
+		query = ("""INSERT INTO parent_reply (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
+		params = (parent_id, comment_id, comment, subreddit, int(time), score, parent_id, timeframe)
 		c.execute(query, params)
 	except Exception as e:
 		print('insert_comment_no_parent', str(e))
