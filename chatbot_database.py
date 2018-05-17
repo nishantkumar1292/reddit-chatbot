@@ -26,7 +26,7 @@ timeframe = get_timeframe()
 sql_transaction = []
 
 # connection = sqlite3.connect('{}.db'.format(AppConstants.database))
-c = connection.cursor()
+c = connection.cursor(buffered=True)
 
 table_name = "parent_reply"
 
