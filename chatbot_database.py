@@ -1,4 +1,5 @@
 import json
+import sys
 from datetime import datetime
 import os
 import urllib.request #for downloading file
@@ -12,13 +13,22 @@ import app_constants as AppConstants
 
 connection = mysql.connector.connect(**AppConstants.db_config)
 
-timeframe = '2017-11'
+timeframe = get_timeframe()
 sql_transaction = []
 
 # connection = sqlite3.connect('{}.db'.format(AppConstants.database))
 c = connection.cursor()
 
 table_name = "parent_reply"
+
+def get_timeframe():
+	if len(sys.argv) != 2:
+		print("Usage: python3 chatbot_database.py 2017-11")
+		sys.exit(1)
+	else:
+		timeframe = sys.argv[1]
+	return timeframe
+
 
 def create_table():
 	c.execute("CREATE TABLE IF NOT EXISTS {} (parent_id VARCHAR(200) PRIMARY KEY, comment_id VARCHAR(200) UNIQUE, parent TEXT, comment TEXT, subreddit TEXT, unix INT, score INT, timeframe TEXT)".format(table_name))
@@ -133,14 +143,14 @@ def sql_insert_replace_comment(comment_id, parent_id, parent_data, comment, subr
 
 def sql_insert_has_parent(comment_id, parent_id, parent_data, comment, subreddit, time, score, timeframe):
 	try:
-		query = """INSERT INTO {} (parent_id, comment_id, parent, comment, subreddit, unix, score, timeframe) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {});""".format(table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id, timeframe)
+		query = """INSERT INTO {} (parent_id, comment_id, parent, comment, subreddit, unix, score, timeframe) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {}, {});""".format(table_name, parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id, timeframe)
 		transaction_bldr(query)
 	except Exception as e:
 		print('insert_comment_has_parent', str(e))
 
 def sql_insert_no_parent(comment_id, parent_id, comment, subreddit, time, score, timeframe):
 	try:
-		query = """INSERT INTO {} (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {});""".format(table_name, parent_id, comment_id, comment, subreddit, int(time), score, parent_id, timeframe)
+		query = """INSERT INTO {} (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES ('{}', '{}', '{}', '{}', '{}', {}, {}, {});""".format(table_name, parent_id, comment_id, comment, subreddit, int(time), score, parent_id, timeframe)
 		transaction_bldr(query)
 	except Exception as e:
 		print('insert_comment_no_parent', str(e))
