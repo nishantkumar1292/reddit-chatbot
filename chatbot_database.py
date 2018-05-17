@@ -6,6 +6,7 @@ import urllib.request #for downloading file
 import bz2 #for extracting zipfile
 
 import mysql.connector
+from mysql.connector import errorcode
 
 
 #file imports
