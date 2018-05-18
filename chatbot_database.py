@@ -155,6 +155,7 @@ def sql_insert_no_parent(comment_id, parent_id, comment, subreddit, time, score,
 		query = ("""INSERT INTO parent_reply (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
 		params = (parent_id, comment_id, comment, subreddit, int(time), score, parent_id, timeframe)
 		c.execute(query, params)
+		print(c._last_executed)
 	except Exception as e:
 		print('insert_comment_no_parent', str(e))
 
