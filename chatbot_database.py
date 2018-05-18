@@ -170,6 +170,12 @@ def sql_insert_no_parent(comment_id, parent_id, comment, subreddit, time, score,
 		print('insert_comment_no_parent', str(e))
 		raise(e)
 
+def format_score(score):
+	if score:
+		return score
+	else:
+		return 0
+
 if __name__ == '__main__':
 	create_table()
 	row_counter = 0
@@ -183,7 +189,7 @@ if __name__ == '__main__':
 			parent_id = row['parent_id'].split("_")[1]
 			body = format_data(row['body'])
 			created_utc = row['created_utc']
-			score = row['score']
+			score = format_score(row['score'])
 			subreddit = row['subreddit']
 			comment_id = row['id']
 			timeframe = timeframe
