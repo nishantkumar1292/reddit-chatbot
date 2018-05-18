@@ -12,8 +12,6 @@ DATABASE_USER = config.get('database', 'DATABASE_USER')
 DATABASE_PASSWORD = config.get('database', 'DATABASE_PASSWORD')
 DATABASE_HOST = config.get('database', 'DATABASE_HOST')
 DATABASE_NAME = config.get('database', 'DATABASE_NAME')
-RAISE_ON_WARNINGS = config.get('database', 'RAISE_ON_WARNINGS')
-
 
 # db_config = {
 # 	'user': 'vivek',
