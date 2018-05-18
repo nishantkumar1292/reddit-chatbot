@@ -13,6 +13,7 @@ from mysql.connector import errorcode
 import app_constants as AppConstants
 
 connection = mysql.connector.connect(**AppConstants.db_config)
+connection.reset_session(user_variables = None, session_variables = None)
 
 def get_timeframe():
 	if len(sys.argv) != 2:
@@ -97,24 +98,26 @@ def find_parent(pid):
 	try:
 		query = "SELECT comment FROM {} WHERE comment_id = '{}' LIMIT 1".format(table_name, pid)
 		c.execute(query)
-		result = c.fecthone()
+		result = c.fetchone()
 		if result != None:
 			return result[0]
 		else:
 			return False
 	except Exception as e:
+		raise(e)
 		return False
 
 def find_existing_score(pid):
 	try:
 		query = "SELECT score FROM {} WHERE parent_id = '{}' LIMIT 1".format(table_name, pid)
 		c.execute(query)
-		result = c.fecthone()
+		result = c.fetchone()
 		if result != None:
 			return result[0]
 		else:
 			return False
 	except Exception as e:
+		raise(e)
 		return False
 
 def acceptable(data):
@@ -130,7 +133,7 @@ def acceptable(data):
 def transaction_bldr(sql):
 	global sql_transaction
 	sql_transaction += 1
-	if sql_transaction > 1000:
+	if sql_transaction > 10:
 		connection.commit()
 		sql_transaction = 0
 
@@ -141,23 +144,25 @@ def sql_insert_replace_comment(comment_id, parent_id, parent_data, comment, subr
 		c.execute(query, params)
 	except Exception as e:
 		print('replace_comment', str(e))
+		raise(e)
 
 def sql_insert_has_parent(comment_id, parent_id, parent_data, comment, subreddit, time, score, timeframe):
 	try:
 		query = ("""INSERT INTO parent_reply (parent_id, comment_id, parent, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
-		params = (parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id, timeframe)
+		params = (parent_id, comment_id, parent_data, comment, subreddit, int(time), score, timeframe)
 		c.execute(query, params)
 	except Exception as e:
 		print('insert_comment_has_parent', str(e))
+		raise(e)
 
 def sql_insert_no_parent(comment_id, parent_id, comment, subreddit, time, score, timeframe):
 	try:
-		query = ("""INSERT INTO parent_reply (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
-		params = (parent_id, comment_id, comment, subreddit, int(time), score, parent_id, timeframe)
+		query = ("""INSERT INTO parent_reply (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s)""")
+		params = (parent_id, comment_id, comment, subreddit, int(time), score, timeframe)
 		c.execute(query, params)
-		print(c._last_executed)
 	except Exception as e:
 		print('insert_comment_no_parent', str(e))
+		raise(e)
 
 if __name__ == '__main__':
 	create_table()
@@ -193,5 +198,7 @@ if __name__ == '__main__':
 
 			if row_counter % 1000 == 0:
 				print("Total rows read: {}, Paired Rows: {}, Time: {}".format(row_counter, piared_rows, str(datetime.now())))
+				connection.commit()
+	connection.commit()
 	c.close()
 	connection.close()
