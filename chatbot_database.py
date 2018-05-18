@@ -151,6 +151,8 @@ def sql_insert_has_parent(comment_id, parent_id, parent_data, comment, subreddit
 		query = ("""INSERT INTO parent_reply (parent_id, comment_id, parent, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
 		params = (parent_id, comment_id, parent_data, comment, subreddit, int(time), score, timeframe)
 		c.execute(query, params)
+	except mysql.connector.errors.DatabaseError as err:
+		print('insert_comment_has_parent', str(err)) #for invalid characters
 	except Exception as e:
 		print('insert_comment_has_parent', str(e))
 		raise(e)
