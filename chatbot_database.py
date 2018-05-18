@@ -141,7 +141,9 @@ def sql_insert_replace_comment(comment_id, parent_id, parent_data, comment, subr
 	try:
 		query = ("""UPDATE parent_reply SET parent_id = %s, comment_id = %s, parent = %s, comment = %s, subreddit = %s, unix = %s, score = %s WHERE parent_id = %s""")
 		params = (parent_id, comment_id, parent_data, comment, subreddit, int(time), score, parent_id)
-		c.execute(query, params)
+		c.execute(query, params)	
+	except mysql.connector.errors.DatabaseError as err:
+		print('replace_comment', str(err)) #for invalid characters
 	except Exception as e:
 		print('replace_comment', str(e))
 		raise(e)
