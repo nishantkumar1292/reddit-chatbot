@@ -160,6 +160,8 @@ def sql_insert_no_parent(comment_id, parent_id, comment, subreddit, time, score,
 		query = ("""INSERT INTO parent_reply (parent_id, comment_id, comment, subreddit, unix, score, timeframe) VALUES (%s, %s, %s, %s, %s, %s, %s)""")
 		params = (parent_id, comment_id, comment, subreddit, int(time), score, timeframe)
 		c.execute(query, params)
+	except mysql.connector.errors.DatabaseError as err:
+		print('insert_comment_no_parent', str(e)) #for invalid characters
 	except Exception as e:
 		print('insert_comment_no_parent', str(e))
 		raise(e)
